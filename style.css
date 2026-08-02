@@ -1,0 +1,557 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #04000e;
+    background: radial-gradient(ellipse at 50% 75%, #0d0120 0%, #05000f 55%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Vignette & Lighting ── */
+.vignette {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.9) 100%);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.spotlight {
+    position: fixed;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85vw;
+    height: 85vh;
+    background: radial-gradient(circle, rgba(160, 40, 255, 0.09) 0%, transparent 70%);
+    filter: blur(50px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.ambient-light {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(160, 40, 255, 0.15) 0%, rgba(100, 10, 200, 0.05) 40%, transparent 65%);
+    top: 32%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 3s ease;
+}
+
+.ambient-light.visible {
+    opacity: 1;
+}
+
+/* ── Trigger overlay ── */
+.trigger-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 200;
+    opacity: 1;
+    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;
+    visibility: visible;
+}
+
+.trigger-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.glass-card {
+    position: relative;
+    width: min(85vw, 340px);
+    background: rgba(10, 4, 24, 0.55);
+    border: 1px solid rgba(160, 60, 255, 0.22);
+    border-radius: 24px;
+    padding: 35px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(140, 30, 255, 0.12);
+    transform: scale(1);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+.trigger-overlay.fade-out .glass-card {
+    transform: scale(0.85);
+}
+
+.card-glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(160, 40, 255, 0.18) 0%, transparent 70%);
+    top: -40px;
+    left: -40px;
+    filter: blur(15px);
+    pointer-events: none;
+}
+
+.tulip-icon {
+    font-size: 54px;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 14px rgba(160, 40, 255, 0.5));
+    animation: pulseIcon 2s ease-in-out infinite;
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.08); }
+}
+
+.glass-card .title {
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 22px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.loading-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.loading-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(to right, #9020e0, #c060ff);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.status-text {
+    font-size: 12px;
+    color: #b5a2b0;
+    font-family: 'Fira Code', monospace;
+    margin-bottom: 26px;
+}
+
+.start-button {
+    position: relative;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #8010d0 0%, #c060ff 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+    box-shadow: 0 5px 20px rgba(140, 20, 220, 0.35);
+}
+
+.start-button:disabled {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none !important;
+}
+
+.start-button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 25px rgba(140, 20, 220, 0.55),
+        0 0 15px rgba(180, 80, 255, 0.35);
+}
+
+.start-button:active {
+    transform: translateY(1px);
+}
+
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: skewX(-25deg);
+}
+
+.start-button:not(:disabled):hover .btn-shine {
+    animation: shine 1.2s ease-in-out infinite;
+}
+
+@keyframes shine {
+    100% { left: 150%; }
+}
+
+/* ── Scene / wrapper ── */
+.scene {
+    perspective: 1200px;
+    perspective-origin: 50% 35%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 6vh;
+    z-index: 20;
+    transform: scale(0.95);
+}
+
+.tulip-wrapper {
+    transform-style: preserve-3d;
+    position: relative;
+    width: 300px;
+    height: 480px;
+    transform: rotateX(-22deg) rotateY(0deg);
+    will-change: transform;
+}
+
+.tulip-wrapper.rotating {
+    animation: rotateTulip 28s linear infinite;
+}
+
+@keyframes rotateTulip {
+    from { transform: rotateX(-22deg) rotateY(0deg); }
+    to   { transform: rotateX(-22deg) rotateY(360deg); }
+}
+
+/* ── Stem ── */
+.stem-group {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 270px;
+    transform-style: preserve-3d;
+}
+
+.stem {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(to top, #0b3a18 0%, #14622a 35%, #1e8840 70%, #14622a 100%);
+    border-radius: 4px;
+    transition: height 2.2s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    will-change: height;
+}
+
+.stem.grow {
+    height: 100%;
+}
+
+.stem-highlight {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(150, 255, 180, 0.12), transparent);
+}
+
+/* ── Leaves — tulips have long, strap-like leaves ── */
+.leaf {
+    position: absolute;
+    width: 72px;
+    height: 20px;
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 1.2s cubic-bezier(0.34, 1.45, 0.64, 1);
+    z-index: 2;
+    will-change: transform, opacity;
+}
+
+/* Tulip leaf: long elliptical strap */
+.leaf::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #2eaa56 0%, #1c7a3a 45%, #0b3a18 100%);
+    border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+}
+
+.leaf-vein {
+    position: absolute;
+    width: 65%;
+    height: 1px;
+    background: rgba(150, 255, 180, 0.14);
+    top: 48%;
+    left: 18%;
+    z-index: 1;
+}
+
+.leaf-left {
+    left: -68px;
+    bottom: 52%;
+    transform-origin: right center;
+    transform: rotate(28deg) scale(0);
+}
+
+.leaf-right {
+    left: 12px;
+    bottom: 33%;
+    transform-origin: left center;
+    transform: rotate(-28deg) scale(0);
+}
+
+.leaf.visible {
+    opacity: 1;
+}
+
+.leaf-left.visible {
+    transform: rotate(12deg) scale(1);
+}
+
+.leaf-right.visible {
+    transform: rotate(-12deg) scale(1);
+}
+
+/* ── Tulip head ── */
+.tulip-head {
+    position: absolute;
+    bottom: 262px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    z-index: 10;
+}
+
+.tulip-glow {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(160, 40, 255, 0.22) 0%, rgba(100, 10, 200, 0.06) 45%, transparent 65%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 3.5s ease;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.tulip-glow-inner {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 100, 255, 0.2) 0%, transparent 65%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 2s ease 0.8s;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.tulip-head.blooming .tulip-glow,
+.tulip-head.blooming .tulip-glow-inner {
+    opacity: 1;
+}
+
+/* ── Petals — tulip cup shape ── */
+.petal {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform-origin: 50% 100%;
+    opacity: 0.002;
+    will-change: transform, opacity;
+
+    /* Broad rounded top, narrower base — classic tulip petal */
+    border-radius: 50% 50% 18% 18% / 65% 65% 35% 35%;
+
+    /* Start as a tight vertical bud */
+    transform:
+        translateX(-50%) rotateY(var(--angle, 0deg)) translateZ(2px) rotateX(80deg) scale(0.12);
+
+    transition:
+        transform var(--bloom-dur, 2.2s) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s),
+        opacity 0.5s ease var(--delay, 0s);
+}
+
+.tulip-head.blooming .petal {
+    opacity: 1;
+    transform:
+        translateX(-50%) rotateY(var(--angle, 0deg)) translateZ(var(--tz, 0px)) rotateX(var(--curl, 25deg)) scale(var(--scale, 1));
+}
+
+/* Inner petals: deep violet-purple core */
+.petal-inner {
+    background: linear-gradient(
+        to bottom,
+        #e090ff 0%,
+        #b040f0 25%,
+        #7810c8 60%,
+        #3c0068 100%
+    );
+    box-shadow: inset 0 10px 24px rgba(240, 160, 255, 0.18);
+}
+
+/* Mid petals: rich purple */
+.petal-mid {
+    background: linear-gradient(
+        to bottom,
+        #cc70ff 0%,
+        #9820e0 28%,
+        #6208b0 62%,
+        #2e0055 100%
+    );
+    box-shadow: inset 0 8px 20px rgba(200, 120, 255, 0.14);
+}
+
+/* Outer petals: deeper magenta-purple, flares wide */
+.petal-outer {
+    background: linear-gradient(
+        to bottom,
+        #b050e8 0%,
+        #8010c8 30%,
+        #540898 65%,
+        #240040 100%
+    );
+}
+
+/* ── Falling petals ── */
+.falling-petal {
+    position: fixed;
+    width: var(--fp-w, 13px);
+    height: var(--fp-h, 18px);
+    background: radial-gradient(ellipse at 40% 30%, var(--fp-c1, #c060ff), var(--fp-c2, #6000cc) 75%);
+    /* Tulip-petal silhouette: wide top, tapered base */
+    border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+    animation: fallSway var(--f-dur, 7s) linear forwards;
+    animation-delay: var(--f-delay, 0s);
+    will-change: transform, opacity;
+}
+
+@keyframes fallSway {
+    0% {
+        opacity: 0;
+        transform: translateX(0) translateY(0) rotate(0deg) rotateY(0deg) scale(1);
+    }
+    8%  { opacity: 0.85; }
+    25% {
+        transform: translateX(var(--s1, 35px)) translateY(20vh) rotate(70deg) rotateY(40deg) scale(0.95);
+    }
+    50% {
+        transform: translateX(var(--s2, -25px)) translateY(48vh) rotate(160deg) rotateY(90deg) scale(0.88);
+    }
+    75% {
+        transform: translateX(var(--s3, 35px)) translateY(75vh) rotate(270deg) rotateY(150deg) scale(0.78);
+        opacity: 0.55;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(var(--s4, 10px)) translateY(108vh) rotate(390deg) rotateY(210deg) scale(0.55);
+    }
+}
+
+/* ── End text ── */
+.end-text {
+    position: fixed;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 2s ease;
+    z-index: 60;
+}
+
+.end-text.visible {
+    opacity: 1;
+}
+
+.tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(18px, 5.5vw, 30px);
+    color: rgba(220, 180, 255, 0.95);
+    letter-spacing: 4px;
+    text-transform: lowercase;
+    text-shadow:
+        0 0 25px rgba(160, 40, 255, 0.5),
+        0 0 60px rgba(120, 20, 200, 0.2);
+    margin-bottom: 8px;
+}
+
+.tulip-emoji {
+    font-size: 32px;
+    display: block;
+    animation: floatEmoji 3s ease-in-out infinite;
+}
+
+@keyframes floatEmoji {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .tulip-wrapper {
+        transform: scale(0.82);
+    }
+
+    .tagline {
+        letter-spacing: 2px;
+    }
+}
+
+@media (max-height: 600px) {
+    .tulip-wrapper {
+        transform: scale(0.68);
+    }
+
+    .end-text {
+        bottom: 3%;
+    }
+}
